@@ -1,6 +1,6 @@
 {
   "name": "baidu-image-spider",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "百度图片爬虫小工具 By Node.js.",
   "main": "src/index.js",
   "bin": {

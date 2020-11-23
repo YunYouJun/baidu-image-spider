@@ -13,7 +13,8 @@ program.version(pkg.version);
 program
   .option("-k, --keyword <keyword>", "关键词", "游戏手柄")
   .option("-tp, --total-page <totalPage>", "总页数", 1)
-  .option("-pp, --per-page <perPage>", "每页数量", 30);
+  .option("-pp, --per-page <perPage>", "每页数量", 30)
+  .option("-o, --output <output>", "输出文件夹", "tmp/images");
 
 program.parse();
 
@@ -38,12 +39,13 @@ class BaiduImageSpider {
      * 每页数量
      */
     this.perPage = options.perPage;
+    this.output = options.output;
     /**
      * 抓取时间间隔 ms
      */
     this.interval = 100;
 
-    this.downloadFolder = `tmp/images/${this.keyword}`;
+    this.downloadFolder = `${this.output}/${this.keyword}`;
     checkFolderExists(this.downloadFolder);
   }
 
@@ -80,8 +82,8 @@ class BaiduImageSpider {
         const index = pn + i + 1;
         if (img.thumbURL) {
           downloadFile(img.thumbURL, `${this.downloadFolder}/${index}.jpg`);
+          console.info(`已下载第 ${index} 张图片。`);
         }
-        console.info(`已下载第 ${index} 张图片。`);
         await sleep(this.interval);
       }
     }
