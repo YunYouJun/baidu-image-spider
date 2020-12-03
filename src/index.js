@@ -2,10 +2,7 @@
 const { createCommand } = require("commander");
 const axios = require("./axios");
 const pkg = require("../package.json");
-
-const { checkFolderExists } = require("@yunyoujun/utils/dist/fs");
-const { sleep } = require("@yunyoujun/utils/dist/utils");
-const { downloadFile } = require("@yunyoujun/utils/dist/http");
+const yyj = require("@yunyoujun/utils");
 
 const program = createCommand();
 
@@ -46,7 +43,7 @@ class BaiduImageSpider {
     this.interval = 100;
 
     this.downloadFolder = `${this.output}/${this.keyword}`;
-    checkFolderExists(this.downloadFolder);
+    yyj.fs.checkFolderExists(this.downloadFolder);
   }
 
   /**
@@ -81,10 +78,13 @@ class BaiduImageSpider {
         const img = imgList[i];
         const index = pn + i + 1;
         if (img.thumbURL) {
-          downloadFile(img.thumbURL, `${this.downloadFolder}/${index}.jpg`);
+          yyj.http.downloadFile(
+            img.thumbURL,
+            `${this.downloadFolder}/${index}.jpg`
+          );
           console.info(`已下载第 ${index} 张图片。`);
         }
-        await sleep(this.interval);
+        await yyj.common.sleep(this.interval);
       }
     }
   }
