@@ -2,6 +2,7 @@
   "name": "baidu-image-spider",
   "version": "0.0.3",
   "description": "百度图片爬虫小工具 By Node.js.",
+  "type": "module",
   "main": "src/index.js",
   "bin": {
     "bis": "src/index.js"
@@ -29,10 +30,9 @@
     "url": "https://github.com/YunYouJun/baidu-image-spider/issues"
   },
   "homepage": "https://github.com/YunYouJun/baidu-image-spider#readme",
-  "devDependencies": {},
   "dependencies": {
-    "@yunyoujun/utils": "^0.0.3",
-    "axios": "^0.21.0",
-    "commander": "^6.2.0"
+    "@yunyoujun/utils": "^0.1.4",
+    "axios": "^0.24.0",
+    "commander": "^8.3.0"
   }
 }

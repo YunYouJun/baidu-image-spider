@@ -1,8 +1,15 @@
 #!/usr/bin/env node
-const { createCommand } = require("commander");
-const axios = require("./axios");
-const pkg = require("../package.json");
-const yyj = require("@yunyoujun/utils");
+import { createCommand } from "commander/esm.mjs";
+import fs from "fs";
+import * as yyj from "@yunyoujun/utils";
+
+import { $axios } from "./axios.js";
+import { logger } from "./logger.js";
+import { config } from "./config.js";
+
+const pkg = JSON.parse(
+  fs.readFileSync(new URL("../package.json", import.meta.url))
+);
 
 const program = createCommand();
 
@@ -40,10 +47,26 @@ class BaiduImageSpider {
     /**
      * 抓取时间间隔 ms
      */
-    this.interval = 100;
+    this.interval = config.interval;
 
     this.downloadFolder = `${this.output}/${this.keyword}`;
     yyj.fs.checkFolderExists(this.downloadFolder);
+  }
+
+  /**
+   * 反爬无效
+   * @param {string} oldCookie
+   * @param {string[]} cookies
+   */
+  setBaiduCookie(oldCookie, setCookies) {
+    let cookies = oldCookie;
+    if (setCookies) {
+      setCookies.forEach((cookie) => {
+        cookies += cookie + ";";
+      });
+      cookies = cookies.slice(0, -1);
+    }
+    $axios.defaults.headers["common"]["Cookie"] = cookies;
   }
 
   /**
@@ -54,7 +77,7 @@ class BaiduImageSpider {
     const url = `https://image.baidu.com/search/acjson`;
     for (let page = 1; page <= this.totalPage; page++) {
       const pn = (page - 1) * this.perPage;
-      const { data } = await axios.get(url, {
+      const res = await $axios.get(url, {
         params: {
           tn: "resultjson_com",
           ipn: "rj",
@@ -73,18 +96,29 @@ class BaiduImageSpider {
         },
       });
 
-      const imgList = data.data;
-      for (let i = 0; i < imgList.length; i++) {
-        const img = imgList[i];
-        const index = pn + i + 1;
-        if (img.thumbURL) {
-          yyj.http.downloadFile(
-            img.thumbURL,
-            `${this.downloadFolder}/${index}.jpg`
-          );
-          console.info(`已下载第 ${index} 张图片。`);
+      this.setBaiduCookie(
+        $axios.defaults.headers["common"]["Cookie"] || "",
+        res.headers["set-cookie"]
+      );
+
+      const { data } = res;
+      if (data.data) {
+        const imgList = data.data;
+        for (let i = 0; i < imgList.length; i++) {
+          const img = imgList[i];
+          const index = pn + i + 1;
+          if (img.thumbURL) {
+            yyj.http.downloadFile(
+              img.thumbURL,
+              `${this.downloadFolder}/${index}.jpg`
+            );
+            logger.info(`已下载第 ${index} 张图片。`);
+          }
+          await yyj.common.sleep(this.interval);
         }
-        await yyj.common.sleep(this.interval);
+      } else {
+        logger.error("爬取失败");
+        console.error(data);
       }
     }
   }

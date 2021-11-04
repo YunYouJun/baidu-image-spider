@@ -2,6 +2,8 @@
 
 百度图片爬虫小工具 By Node.js.
 
+> emm. 似乎百度图片增强了反爬机制，现在不大行。
+
 ## Usage
 
 ```sh
@@ -32,3 +34,9 @@ Options:
   -o, --output <output>          输出文件夹 (default: "tmp/images")
   -h, --help                     display help for command
 ```
+
+## Ref
+
+Ref [BaiduImageSpider](https://github.com/kong36088/BaiduImageSpider), but written with Node.js.
+
+And I've optimized the readability of my code with axios params, and simplified some features and usage methods.
